@@ -1,0 +1,38 @@
+library(rgdal)
+library(maptools)
+library(raster)
+setwd('~/Dropbox/Diversos/GIS shapes/IBGE2004 Simples')
+biomas <- readShapePoly('biomasibge2004.shp')
+plot(biomas)
+
+biomas@data
+
+caatinga <- biomas[biomas$CD_LEGENDA == 'Caatinga',] #### seleciona a Caatinga
+plot(caatinga)
+projection(caatinga)<-CRS("+proj=longlat +datum=WGS84") #Set the projection of these polygons
+caatinga.proj<-spTransform(caatinga,CRS("+proj=moll +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +units=m +no_defs"))#reproject to mollweide
+
+cerrado <- biomas[biomas$CD_LEGENDA == 'CERRADO',] #### seleciona a Cerrado
+projection(cerrado)<-CRS("+proj=longlat +datum=WGS84") #Set the projection of these polygons
+cerrado.proj<-spTransform(cerrado,CRS("+proj=moll +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +units=m +no_defs"))#reproject to mollweide
+
+plot(cerrado)
+
+rich <- raster('~/Documents/gcc_wisc/Amphibian Maps 1dgr/anura_rich.grd')
+plot(rich)
+
+caatinga.rich <- clip(rich,caatinga.proj)
+plot(caatinga.rich)
+cerrado.rich <- clip(rich,cerrado.proj)
+plot(cerrado.rich)
+
+plot(caatinga.proj,add=T)
+pdf('~/Desktop/rich_Caat.pdf', height=6, width=5)
+plot(caatinga.rich)
+plot(caatinga.proj,add=T)
+dev.off()
+
+pdf('~/Desktop/rich_Cerrado.pdf', height=6, width=5)
+plot(cerrado.rich)
+plot(cerrado.proj,add=T)
+dev.off()
